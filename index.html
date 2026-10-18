@@ -1,0 +1,1566 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <meta name="theme-color" content="#09090B" />
+        <meta
+            name="description"
+            content="Application de gestion des stocks, ventes et consommations de champagne."
+        />
+
+        <title>Champagne Manager | Gestion des événements</title>
+
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- Configuration Tailwind -->
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            luxury: {
+                                black: '#09090B',
+                                surface: '#18181B',
+                                gold: '#D4AF37',
+                                light: '#F5D76E',
+                                champagne: '#F7E7CE',
+                            },
+                        },
+                        fontFamily: {
+                            sans: ['Inter', 'sans-serif'],
+                        },
+                    },
+                },
+            };
+        </script>
+
+        <!-- Icônes Lucide -->
+        <script src="https://unpkg.com/lucide@latest"></script>
+
+        <!-- Police -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: #09090b;
+                color: #ffffff;
+            }
+
+            .sidebar-link {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+                padding: 12px 14px;
+                border-radius: 10px;
+                color: #a1a1aa;
+                font-size: 14px;
+                font-weight: 500;
+                text-align: left;
+                transition: all 0.2s ease;
+            }
+
+            .sidebar-link:hover {
+                background-color: #27272a;
+                color: #ffffff;
+            }
+
+            .sidebar-link.active {
+                background-color: rgba(212, 175, 55, 0.12);
+                color: #f5d76e;
+                border: 1px solid rgba(212, 175, 55, 0.18);
+            }
+
+            .panel {
+                background-color: #18181b;
+                border: 1px solid #27272a;
+                border-radius: 16px;
+            }
+
+            .input-field {
+                width: 100%;
+                background-color: #09090b;
+                border: 1px solid #3f3f46;
+                border-radius: 8px;
+                padding: 11px 12px;
+                color: #ffffff;
+                outline: none;
+                font-size: 14px;
+            }
+
+            .input-field:focus {
+                border-color: #d4af37;
+                box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12);
+            }
+
+            .input-field::placeholder {
+                color: #71717a;
+            }
+
+            select.input-field option {
+                background-color: #18181b;
+            }
+
+            .btn-gold {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                background-color: #d4af37;
+                color: #09090b;
+                border-radius: 8px;
+                padding: 11px 16px;
+                font-size: 14px;
+                font-weight: 700;
+                transition: background-color 0.2s ease;
+            }
+
+            .btn-gold:hover {
+                background-color: #f5d76e;
+            }
+
+            .btn-secondary {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                background-color: #27272a;
+                color: #e4e4e7;
+                border: 1px solid #3f3f46;
+                border-radius: 8px;
+                padding: 10px 14px;
+                font-size: 13px;
+                font-weight: 600;
+                transition: background-color 0.2s ease;
+            }
+
+            .btn-secondary:hover {
+                background-color: #3f3f46;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                white-space: nowrap;
+            }
+
+            th {
+                padding: 14px 16px;
+                color: #a1a1aa;
+                font-size: 11px;
+                font-weight: 600;
+                text-align: left;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                border-bottom: 1px solid #27272a;
+            }
+
+            td {
+                padding: 15px 16px;
+                font-size: 13px;
+                border-bottom: 1px solid #27272a;
+            }
+
+            tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            tbody tr:hover {
+                background-color: rgba(255, 255, 255, 0.02);
+            }
+
+            .section-page {
+                display: none;
+            }
+
+            .section-page.active {
+                display: block;
+            }
+
+            .stat-icon {
+                width: 42px;
+                height: 42px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 12px;
+                background-color: rgba(212, 175, 55, 0.12);
+                color: #f5d76e;
+                flex-shrink: 0;
+            }
+
+            .badge {
+                display: inline-flex;
+                align-items: center;
+                border-radius: 999px;
+                padding: 5px 9px;
+                font-size: 11px;
+                font-weight: 600;
+            }
+
+            .badge-green {
+                background-color: rgba(34, 197, 94, 0.12);
+                color: #4ade80;
+            }
+
+            .badge-red {
+                background-color: rgba(239, 68, 68, 0.12);
+                color: #f87171;
+            }
+
+            .badge-gold {
+                background-color: rgba(212, 175, 55, 0.12);
+                color: #f5d76e;
+            }
+
+            .mobile-overlay {
+                display: none;
+            }
+
+            @media (max-width: 767px) {
+                #sidebar {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    bottom: 0;
+                    z-index: 50;
+                    width: 270px;
+                    transform: translateX(-100%);
+                    transition: transform 0.25s ease;
+                }
+
+                #sidebar.open {
+                    transform: translateX(0);
+                }
+
+                .mobile-overlay.open {
+                    display: block;
+                    position: fixed;
+                    inset: 0;
+                    z-index: 40;
+                    background-color: rgba(0, 0, 0, 0.7);
+                }
+
+                .stat-value {
+                    font-size: 21px;
+                }
+            }
+        </style>
+    </head>
+
+    <body class="min-h-screen">
+        <!-- Overlay mobile -->
+        <div
+            id="mobileOverlay"
+            class="mobile-overlay"
+            onclick="toggleSidebar()"
+        ></div>
+
+        <div class="flex min-h-screen">
+            <!-- SIDEBAR -->
+            <aside
+                id="sidebar"
+                class="w-64 shrink-0 border-r border-zinc-800 bg-luxury-black flex flex-col"
+            >
+                <!-- Logo -->
+                <div class="px-6 py-6 border-b border-zinc-800">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-11 h-11 rounded-xl bg-luxury-gold flex items-center justify-center"
+                        >
+                            <i
+                                data-lucide="wine"
+                                class="w-6 h-6 text-black"
+                            ></i>
+                        </div>
+
+                        <div>
+                            <h1 class="text-base font-extrabold tracking-wide">
+                                CHAMPAGNE
+                            </h1>
+                            <p class="text-xs text-luxury-gold tracking-widest">
+                                MANAGER
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="flex-1 px-4 py-6 space-y-2">
+                    <p
+                        class="px-3 mb-3 text-xs font-semibold text-zinc-600 uppercase tracking-widest"
+                    >
+                        Gestion
+                    </p>
+
+                    <button class="sidebar-link active" data-page="dashboard">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        Tableau de bord
+                    </button>
+
+                    <button class="sidebar-link" data-page="stock">
+                        <i data-lucide="package" class="w-5 h-5"></i>
+                        Stock des bouteilles
+                    </button>
+
+                    <button class="sidebar-link" data-page="ventes">
+                        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        Ventes
+                    </button>
+
+                    <button class="sidebar-link" data-page="consommations">
+                        <i data-lucide="wine" class="w-5 h-5"></i>
+                        Consommations locales
+                    </button>
+
+                    <div class="pt-6">
+                        <p
+                            class="px-3 mb-3 text-xs font-semibold text-zinc-600 uppercase tracking-widest"
+                        >
+                            Analyse
+                        </p>
+
+                        <button class="sidebar-link" data-page="bilan">
+                            <i
+                                data-lucide="chart-no-axes-combined"
+                                class="w-5 h-5"
+                            ></i>
+                            Bilan de l'événement
+                        </button>
+                    </div>
+                </nav>
+
+                <!-- Footer sidebar -->
+                <div class="p-4 border-t border-zinc-800">
+                    <div class="flex items-center gap-3 px-2 py-2">
+                        <div
+                            class="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-luxury-gold"
+                        >
+                            <i data-lucide="user-round" class="w-5 h-5"></i>
+                        </div>
+
+                        <div>
+                            <p class="text-sm font-semibold">Gestionnaire</p>
+                            <p class="text-xs text-zinc-500">
+                                Mode démonstration
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CONTENU PRINCIPAL -->
+            <div class="flex-1 min-w-0">
+                <!-- HEADER -->
+                <header
+                    class="sticky top-0 z-30 h-[76px] border-b border-zinc-800 bg-luxury-black/95 backdrop-blur-md flex items-center justify-between px-4 sm:px-6 lg:px-8"
+                >
+                    <div class="flex items-center gap-3">
+                        <button
+                            id="menuButton"
+                            class="md:hidden p-2 rounded-lg hover:bg-zinc-800"
+                            onclick="toggleSidebar()"
+                            aria-label="Ouvrir le menu"
+                        >
+                            <i data-lucide="menu" class="w-5 h-5"></i>
+                        </button>
+
+                        <div>
+                            <h2 id="pageTitle" class="font-bold text-lg">
+                                Tableau de bord
+                            </h2>
+                            <p
+                                id="pageSubtitle"
+                                class="text-xs text-zinc-500 mt-1"
+                            >
+                                Vue générale de votre événement
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="hidden sm:flex items-center gap-2 text-xs text-zinc-400"
+                        >
+                            <span
+                                class="w-2 h-2 rounded-full bg-green-500"
+                            ></span>
+                            Application active
+                        </div>
+
+                        <div class="hidden sm:block h-8 w-px bg-zinc-800"></div>
+
+                        <div class="text-right">
+                            <p
+                                id="currentDate"
+                                class="text-sm font-semibold"
+                            ></p>
+                            <p class="text-xs text-zinc-500">
+                                Événement du jour
+                            </p>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- ZONE DES PAGES -->
+                <main class="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+                    <!-- ===================== -->
+                    <!-- PAGE : DASHBOARD -->
+                    <!-- ===================== -->
+                    <section id="page-dashboard" class="section-page active">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
+                        >
+                            <div>
+                                <p class="text-sm text-zinc-400 mb-2">
+                                    Bienvenue dans votre espace de gestion
+                                </p>
+
+                                <h3 class="text-2xl sm:text-3xl font-bold">
+                                    Votre événement,
+                                    <span class="text-luxury-gold"
+                                        >en un coup d'œil.</span
+                                    >
+                                </h3>
+
+                                <p class="text-sm text-zinc-500 mt-2">
+                                    Suivez vos stocks, vos ventes et vos
+                                    consommations.
+                                </p>
+                            </div>
+
+                            <button
+                                class="btn-gold"
+                                onclick="openPage('stock')"
+                            >
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                Ajouter des bouteilles
+                            </button>
+                        </div>
+
+                        <!-- Cartes statistiques -->
+                        <div
+                            class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8"
+                        >
+                            <div class="panel p-5">
+                                <div
+                                    class="flex items-center justify-between mb-5"
+                                >
+                                    <div class="stat-icon">
+                                        <i
+                                            data-lucide="package"
+                                            class="w-5 h-5"
+                                        ></i>
+                                    </div>
+                                    <span class="text-xs text-zinc-500"
+                                        >En temps réel</span
+                                    >
+                                </div>
+
+                                <p class="text-sm text-zinc-400">
+                                    Stock disponible
+                                </p>
+                                <h3
+                                    id="statStock"
+                                    class="stat-value text-2xl font-bold mt-2"
+                                >
+                                    0 bouteille
+                                </h3>
+                                <p class="text-xs text-zinc-500 mt-2">
+                                    Bouteilles restantes en stock
+                                </p>
+                            </div>
+
+                            <div class="panel p-5">
+                                <div
+                                    class="flex items-center justify-between mb-5"
+                                >
+                                    <div class="stat-icon">
+                                        <i
+                                            data-lucide="wallet"
+                                            class="w-5 h-5"
+                                        ></i>
+                                    </div>
+                                    <span class="badge badge-green"
+                                        >Ventes</span
+                                    >
+                                </div>
+
+                                <p class="text-sm text-zinc-400">
+                                    Chiffre d'affaires
+                                </p>
+                                <h3
+                                    id="statRevenue"
+                                    class="stat-value text-2xl font-bold mt-2"
+                                >
+                                    0 FCFA
+                                </h3>
+                                <p class="text-xs text-zinc-500 mt-2">
+                                    Total des ventes enregistrées
+                                </p>
+                            </div>
+
+                            <div class="panel p-5">
+                                <div
+                                    class="flex items-center justify-between mb-5"
+                                >
+                                    <div class="stat-icon">
+                                        <i
+                                            data-lucide="wine"
+                                            class="w-5 h-5"
+                                        ></i>
+                                    </div>
+                                    <span class="badge badge-gold"
+                                        >Consommations</span
+                                    >
+                                </div>
+
+                                <p class="text-sm text-zinc-400">
+                                    Consommation locale
+                                </p>
+                                <h3
+                                    id="statConsumption"
+                                    class="stat-value text-2xl font-bold mt-2"
+                                >
+                                    0 bouteille
+                                </h3>
+                                <p class="text-xs text-zinc-500 mt-2">
+                                    Bouteilles consommées en interne
+                                </p>
+                            </div>
+
+                            <div class="panel p-5">
+                                <div
+                                    class="flex items-center justify-between mb-5"
+                                >
+                                    <div class="stat-icon">
+                                        <i
+                                            data-lucide="boxes"
+                                            class="w-5 h-5"
+                                        ></i>
+                                    </div>
+                                    <span class="text-xs text-zinc-500"
+                                        >Références</span
+                                    >
+                                </div>
+
+                                <p class="text-sm text-zinc-400">
+                                    Types de bouteilles
+                                </p>
+                                <h3
+                                    id="statProducts"
+                                    class="stat-value text-2xl font-bold mt-2"
+                                >
+                                    0 référence
+                                </h3>
+                                <p class="text-xs text-zinc-500 mt-2">
+                                    Produits enregistrés
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Section événement -->
+                        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+                            <div class="panel p-6 xl:col-span-2">
+                                <div
+                                    class="flex items-center justify-between mb-6"
+                                >
+                                    <div>
+                                        <h4 class="font-bold text-lg">
+                                            Résumé de l'événement
+                                        </h4>
+                                        <p class="text-sm text-zinc-500 mt-1">
+                                            Vue synthétique de vos opérations
+                                        </p>
+                                    </div>
+
+                                    <div
+                                        class="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-luxury-gold"
+                                    >
+                                        <i
+                                            data-lucide="chart-no-axes-combined"
+                                            class="w-5 h-5"
+                                        ></i>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-5">
+                                    <div
+                                        class="flex items-center justify-between gap-4"
+                                    >
+                                        <div>
+                                            <p class="text-sm text-zinc-300">
+                                                Bouteilles entrées
+                                            </p>
+                                            <p
+                                                class="text-xs text-zinc-500 mt-1"
+                                            >
+                                                Stock initial et
+                                                approvisionnements
+                                            </p>
+                                        </div>
+                                        <p
+                                            id="summaryEntries"
+                                            class="font-bold"
+                                        >
+                                            0
+                                        </p>
+                                    </div>
+
+                                    <div class="h-px bg-zinc-800"></div>
+
+                                    <div
+                                        class="flex items-center justify-between gap-4"
+                                    >
+                                        <div>
+                                            <p class="text-sm text-zinc-300">
+                                                Bouteilles vendues
+                                            </p>
+                                            <p
+                                                class="text-xs text-zinc-500 mt-1"
+                                            >
+                                                Ventes enregistrées
+                                            </p>
+                                        </div>
+                                        <p id="summarySales" class="font-bold">
+                                            0
+                                        </p>
+                                    </div>
+
+                                    <div class="h-px bg-zinc-800"></div>
+
+                                    <div
+                                        class="flex items-center justify-between gap-4"
+                                    >
+                                        <div>
+                                            <p class="text-sm text-zinc-300">
+                                                Bouteilles consommées
+                                            </p>
+                                            <p
+                                                class="text-xs text-zinc-500 mt-1"
+                                            >
+                                                Consommations locales
+                                                enregistrées
+                                            </p>
+                                        </div>
+                                        <p
+                                            id="summaryConsumption"
+                                            class="font-bold"
+                                        >
+                                            0
+                                        </p>
+                                    </div>
+
+                                    <div class="h-px bg-zinc-800"></div>
+
+                                    <div
+                                        class="flex items-center justify-between gap-4"
+                                    >
+                                        <div>
+                                            <p class="text-sm text-zinc-300">
+                                                Bouteilles sorties
+                                            </p>
+                                            <p
+                                                class="text-xs text-zinc-500 mt-1"
+                                            >
+                                                Stock final déclaré
+                                            </p>
+                                        </div>
+                                        <p id="summaryExit" class="font-bold">
+                                            0
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    class="btn-secondary mt-7 w-full sm:w-auto"
+                                    onclick="openPage('bilan')"
+                                >
+                                    Consulter le bilan complet
+                                    <i
+                                        data-lucide="arrow-up-right"
+                                        class="w-4 h-4"
+                                    ></i>
+                                </button>
+                            </div>
+
+                            <!-- Actions rapides -->
+                            <div class="panel p-6">
+                                <h4 class="font-bold text-lg">
+                                    Actions rapides
+                                </h4>
+                                <p class="text-sm text-zinc-500 mt-1 mb-6">
+                                    Accédez rapidement aux opérations.
+                                </p>
+
+                                <div class="space-y-3">
+                                    <button
+                                        onclick="openPage('stock')"
+                                        class="w-full flex items-center gap-3 p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-luxury-gold/50 transition text-left"
+                                    >
+                                        <div class="stat-icon">
+                                            <i
+                                                data-lucide="package-plus"
+                                                class="w-5 h-5"
+                                            ></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-semibold">
+                                                Entrée de stock
+                                            </p>
+                                            <p
+                                                class="text-xs text-zinc-500 mt-1"
+                                            >
+                                                Ajouter des bouteilles
+                                            </p>
+                                        </div>
+                                        <i
+                                            data-lucide="chevron-right"
+                                            class="w-4 h-4 text-zinc-500 ml-auto"
+                                        ></i>
+                                    </button>
+
+                                    <button
+                                        onclick="openPage('ventes')"
+                                        class="w-full flex items-center gap-3 p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-luxury-gold/50 transition text-left"
+                                    >
+                                        <div class="stat-icon">
+                                            <i
+                                                data-lucide="shopping-cart"
+                                                class="w-5 h-5"
+                                            ></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-semibold">
+                                                Nouvelle vente
+                                            </p>
+                                            <p
+                                                class="text-xs text-zinc-500 mt-1"
+                                            >
+                                                Enregistrer un paiement
+                                            </p>
+                                        </div>
+                                        <i
+                                            data-lucide="chevron-right"
+                                            class="w-4 h-4 text-zinc-500 ml-auto"
+                                        ></i>
+                                    </button>
+
+                                    <button
+                                        onclick="openPage('consommations')"
+                                        class="w-full flex items-center gap-3 p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-luxury-gold/50 transition text-left"
+                                    >
+                                        <div class="stat-icon">
+                                            <i
+                                                data-lucide="wine"
+                                                class="w-5 h-5"
+                                            ></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-semibold">
+                                                Consommation locale
+                                            </p>
+                                            <p
+                                                class="text-xs text-zinc-500 mt-1"
+                                            >
+                                                Identifier le bénéficiaire
+                                            </p>
+                                        </div>
+                                        <i
+                                            data-lucide="chevron-right"
+                                            class="w-4 h-4 text-zinc-500 ml-auto"
+                                        ></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dernières opérations -->
+                        <div class="panel">
+                            <div
+                                class="p-5 sm:p-6 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                            >
+                                <div>
+                                    <h4 class="font-bold text-lg">
+                                        Dernières opérations
+                                    </h4>
+                                    <p class="text-sm text-zinc-500 mt-1">
+                                        Historique des mouvements récents
+                                    </p>
+                                </div>
+
+                                <span
+                                    id="operationCount"
+                                    class="badge badge-gold"
+                                    >0 opération</span
+                                >
+                            </div>
+
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Opération</th>
+                                            <th>Bouteille</th>
+                                            <th>Quantité</th>
+                                            <th>Montant</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="recentOperations">
+                                        <tr>
+                                            <td
+                                                colspan="5"
+                                                class="text-center text-zinc-500 py-10"
+                                            >
+                                                Aucune opération enregistrée
+                                                pour le moment.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ===================== -->
+                    <!-- PAGE : STOCK -->
+                    <!-- ===================== -->
+                    <section id="page-stock" class="section-page">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-bold">
+                                Stock des bouteilles
+                            </h3>
+                            <p class="text-sm text-zinc-500 mt-2">
+                                Enregistrez les bouteilles et suivez les
+                                quantités disponibles.
+                            </p>
+                        </div>
+
+                        <!-- Formulaire stock -->
+                        <div class="panel p-5 sm:p-6 mb-6">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="stat-icon">
+                                    <i
+                                        data-lucide="package-plus"
+                                        class="w-5 h-5"
+                                    ></i>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold">
+                                        Nouvelle entrée de stock
+                                    </h4>
+                                    <p class="text-xs text-zinc-500 mt-1">
+                                        Ajoutez une référence ou approvisionnez
+                                        une bouteille existante.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <form
+                                id="stockForm"
+                                class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
+                            >
+                                <div>
+                                    <label
+                                        for="stockProduct"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Nom de la bouteille *
+                                    </label>
+                                    <input
+                                        id="stockProduct"
+                                        class="input-field"
+                                        type="text"
+                                        placeholder="Ex. Moët & Chandon"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="stockQuantity"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Quantité entrante *
+                                    </label>
+                                    <input
+                                        id="stockQuantity"
+                                        class="input-field"
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        placeholder="Ex. 20"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="stockPrice"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Prix de vente unitaire (FCFA) *
+                                    </label>
+                                    <input
+                                        id="stockPrice"
+                                        class="input-field"
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        placeholder="Ex. 50000"
+                                        required
+                                    />
+                                </div>
+
+                                <div class="flex items-end">
+                                    <button
+                                        type="submit"
+                                        class="btn-gold w-full"
+                                    >
+                                        <i
+                                            data-lucide="plus"
+                                            class="w-4 h-4"
+                                        ></i>
+                                        Enregistrer le stock
+                                    </button>
+                                </div>
+                            </form>
+
+                            <p class="text-xs text-zinc-500 mt-4">
+                                Le prix renseigné ici sera utilisé pour calculer
+                                le chiffre d'affaires potentiel et la valeur
+                                indicative des consommations.
+                            </p>
+                        </div>
+
+                        <!-- Tableau du stock -->
+                        <div class="panel">
+                            <div
+                                class="p-5 sm:p-6 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                            >
+                                <div>
+                                    <h4 class="font-bold">
+                                        Inventaire des bouteilles
+                                    </h4>
+                                    <p class="text-sm text-zinc-500 mt-1">
+                                        Quantités enregistrées et disponibles
+                                    </p>
+                                </div>
+
+                                <span
+                                    id="stockProductCount"
+                                    class="badge badge-gold"
+                                    >0 référence</span
+                                >
+                            </div>
+
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Bouteille</th>
+                                            <th>Total entré</th>
+                                            <th>Vendues</th>
+                                            <th>Consommées</th>
+                                            <th>Disponibles</th>
+                                            <th>Prix unitaire</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="stockTable">
+                                        <tr>
+                                            <td
+                                                colspan="7"
+                                                class="text-center text-zinc-500 py-10"
+                                            >
+                                                Aucune bouteille enregistrée.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ===================== -->
+                    <!-- PAGE : VENTES -->
+                    <!-- ===================== -->
+                    <section id="page-ventes" class="section-page">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-bold">
+                                Gestion des ventes
+                            </h3>
+                            <p class="text-sm text-zinc-500 mt-2">
+                                Enregistrez chaque vente et suivez le chiffre
+                                d'affaires.
+                            </p>
+                        </div>
+
+                        <div class="panel p-5 sm:p-6 mb-6">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="stat-icon">
+                                    <i
+                                        data-lucide="shopping-cart"
+                                        class="w-5 h-5"
+                                    ></i>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold">
+                                        Enregistrer une vente
+                                    </h4>
+                                    <p class="text-xs text-zinc-500 mt-1">
+                                        Le stock sera mis à jour
+                                        automatiquement.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <form
+                                id="saleForm"
+                                class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
+                            >
+                                <div>
+                                    <label
+                                        for="saleProduct"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Bouteille *
+                                    </label>
+                                    <select
+                                        id="saleProduct"
+                                        class="input-field"
+                                        required
+                                    >
+                                        <option value="">
+                                            Choisir une bouteille
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="saleQuantity"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Quantité vendue *
+                                    </label>
+                                    <input
+                                        id="saleQuantity"
+                                        class="input-field"
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        placeholder="Ex. 2"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="saleUnitPrice"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Prix de vente unitaire (FCFA)
+                                    </label>
+                                    <input
+                                        id="saleUnitPrice"
+                                        class="input-field"
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        required
+                                    />
+                                </div>
+
+                                <div class="flex items-end">
+                                    <button
+                                        type="submit"
+                                        class="btn-gold w-full"
+                                    >
+                                        <i
+                                            data-lucide="check-circle"
+                                            class="w-4 h-4"
+                                        ></i>
+                                        Valider la vente
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div
+                                class="mt-5 p-4 rounded-xl bg-zinc-900 border border-zinc-800 flex flex-wrap items-center justify-between gap-3"
+                            >
+                                <p class="text-sm text-zinc-400">
+                                    Montant total de la vente
+                                </p>
+                                <p
+                                    id="salePreview"
+                                    class="text-xl font-bold text-luxury-gold"
+                                >
+                                    0 FCFA
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="p-5 sm:p-6 border-b border-zinc-800">
+                                <h4 class="font-bold">Historique des ventes</h4>
+                                <p class="text-sm text-zinc-500 mt-1">
+                                    Toutes les ventes enregistrées
+                                </p>
+                            </div>
+
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Bouteille</th>
+                                            <th>Quantité</th>
+                                            <th>Prix unitaire</th>
+                                            <th>Montant total</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="salesTable">
+                                        <tr>
+                                            <td
+                                                colspan="5"
+                                                class="text-center text-zinc-500 py-10"
+                                            >
+                                                Aucune vente enregistrée.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ===================== -->
+                    <!-- PAGE : CONSOMMATIONS -->
+                    <!-- ===================== -->
+                    <section id="page-consommations" class="section-page">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-bold">
+                                Consommations locales
+                            </h3>
+                            <p class="text-sm text-zinc-500 mt-2">
+                                Suivez les bouteilles consommées et identifiez
+                                leurs bénéficiaires.
+                            </p>
+                        </div>
+
+                        <div class="panel p-5 sm:p-6 mb-6">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="stat-icon">
+                                    <i data-lucide="wine" class="w-5 h-5"></i>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold">
+                                        Enregistrer une consommation
+                                    </h4>
+                                    <p class="text-xs text-zinc-500 mt-1">
+                                        Cette opération diminue le stock sans
+                                        augmenter le chiffre d'affaires.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <form
+                                id="consumptionForm"
+                                class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
+                            >
+                                <div>
+                                    <label
+                                        for="consumptionProduct"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Bouteille *
+                                    </label>
+                                    <select
+                                        id="consumptionProduct"
+                                        class="input-field"
+                                        required
+                                    >
+                                        <option value="">
+                                            Choisir une bouteille
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="consumptionQuantity"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Quantité consommée *
+                                    </label>
+                                    <input
+                                        id="consumptionQuantity"
+                                        class="input-field"
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        placeholder="Ex. 1"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="consumptionBeneficiary"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Nom du bénéficiaire *
+                                    </label>
+                                    <input
+                                        id="consumptionBeneficiary"
+                                        class="input-field"
+                                        type="text"
+                                        placeholder="Nom de la personne ou du groupe"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="consumptionCategory"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Catégorie *
+                                    </label>
+                                    <select
+                                        id="consumptionCategory"
+                                        class="input-field"
+                                        required
+                                    >
+                                        <option value="">
+                                            Choisir une catégorie
+                                        </option>
+                                        <option value="Invité du patron">
+                                            Invité du patron
+                                        </option>
+                                        <option value="Personnel">
+                                            Personnel
+                                        </option>
+                                        <option value="Invité spécial">
+                                            Invité spécial
+                                        </option>
+                                        <option value="Autre">Autre</option>
+                                    </select>
+                                </div>
+
+                                <div class="sm:col-span-2 xl:col-span-1">
+                                    <label
+                                        for="consumptionReason"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Motif (facultatif)
+                                    </label>
+                                    <input
+                                        id="consumptionReason"
+                                        class="input-field"
+                                        type="text"
+                                        placeholder="Ex. Offre spéciale"
+                                    />
+                                </div>
+
+                                <div class="sm:col-span-2 xl:col-span-3">
+                                    <button
+                                        type="submit"
+                                        class="btn-gold w-full sm:w-auto"
+                                    >
+                                        <i
+                                            data-lucide="check-circle"
+                                            class="w-4 h-4"
+                                        ></i>
+                                        Enregistrer la consommation
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="panel">
+                            <div class="p-5 sm:p-6 border-b border-zinc-800">
+                                <h4 class="font-bold">
+                                    Historique des consommations
+                                </h4>
+                                <p class="text-sm text-zinc-500 mt-1">
+                                    Qui a consommé quoi et en quelle quantité ?
+                                </p>
+                            </div>
+
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Bouteille</th>
+                                            <th>Quantité</th>
+                                            <th>Bénéficiaire</th>
+                                            <th>Catégorie</th>
+                                            <th>Valeur indicative</th>
+                                            <th>Motif</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="consumptionTable">
+                                        <tr>
+                                            <td
+                                                colspan="7"
+                                                class="text-center text-zinc-500 py-10"
+                                            >
+                                                Aucune consommation enregistrée.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ===================== -->
+                    <!-- PAGE : BILAN -->
+                    <!-- ===================== -->
+                    <section id="page-bilan" class="section-page">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
+                        >
+                            <div>
+                                <h3 class="text-2xl font-bold">
+                                    Bilan de l'événement
+                                </h3>
+                                <p class="text-sm text-zinc-500 mt-2">
+                                    Consultez les résultats et vérifiez le stock
+                                    final.
+                                </p>
+                            </div>
+
+                            <button
+                                onclick="window.print()"
+                                class="btn-secondary"
+                            >
+                                <i data-lucide="printer" class="w-4 h-4"></i>
+                                Imprimer le bilan
+                            </button>
+                        </div>
+
+                        <!-- Indicateurs -->
+                        <div
+                            class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8"
+                        >
+                            <div class="panel p-5">
+                                <p class="text-sm text-zinc-400">
+                                    Chiffre d'affaires
+                                </p>
+                                <h4
+                                    id="reportRevenue"
+                                    class="text-2xl font-bold text-luxury-gold mt-3"
+                                >
+                                    0 FCFA
+                                </h4>
+                                <p class="text-xs text-zinc-500 mt-2">
+                                    Montant total des ventes
+                                </p>
+                            </div>
+
+                            <div class="panel p-5">
+                                <p class="text-sm text-zinc-400">
+                                    Valeur des consommations
+                                </p>
+                                <h4
+                                    id="reportConsumptionValue"
+                                    class="text-2xl font-bold mt-3"
+                                >
+                                    0 FCFA
+                                </h4>
+                                <p class="text-xs text-zinc-500 mt-2">
+                                    Valeur indicative, hors chiffre d'affaires
+                                </p>
+                            </div>
+
+                            <div class="panel p-5">
+                                <p class="text-sm text-zinc-400">
+                                    Valeur indicative du stock restant
+                                </p>
+                                <h4
+                                    id="reportStockValue"
+                                    class="text-2xl font-bold mt-3"
+                                >
+                                    0 FCFA
+                                </h4>
+                                <p class="text-xs text-zinc-500 mt-2">
+                                    Calculée au prix de vente unitaire
+                                    enregistré
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Détail des mouvements -->
+                        <div class="panel mb-6">
+                            <div class="p-5 sm:p-6 border-b border-zinc-800">
+                                <h4 class="font-bold">
+                                    Récapitulatif des mouvements
+                                </h4>
+                                <p class="text-sm text-zinc-500 mt-1">
+                                    Rapprochement des entrées, ventes,
+                                    consommations et sorties.
+                                </p>
+                            </div>
+
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Bouteille</th>
+                                            <th>Total entré</th>
+                                            <th>Vendues</th>
+                                            <th>Consommées</th>
+                                            <th>Stock disponible</th>
+                                            <th>Valeur du stock</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="reportTable">
+                                        <tr>
+                                            <td
+                                                colspan="6"
+                                                class="text-center text-zinc-500 py-10"
+                                            >
+                                                Aucune donnée disponible.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Déclaration du stock final -->
+                        <div class="panel p-5 sm:p-6">
+                            <h4 class="font-bold text-lg">
+                                Contrôle de fin d'événement
+                            </h4>
+
+                            <p class="text-sm text-zinc-400 mt-2 mb-6">
+                                Déclarez le nombre de bouteilles physiquement
+                                restantes pour comparer le stock théorique au
+                                stock réel.
+                            </p>
+
+                            <form
+                                id="exitForm"
+                                class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
+                            >
+                                <div>
+                                    <label
+                                        for="exitProduct"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Bouteille *
+                                    </label>
+                                    <select
+                                        id="exitProduct"
+                                        class="input-field"
+                                        required
+                                    >
+                                        <option value="">
+                                            Choisir une bouteille
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="exitQuantity"
+                                        class="block text-sm text-zinc-300 mb-2"
+                                    >
+                                        Quantité physiquement restante *
+                                    </label>
+                                    <input
+                                        id="exitQuantity"
+                                        class="input-field"
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        placeholder="Ex. 5"
+                                        required
+                                    />
+                                </div>
+
+                                <div class="flex items-end">
+                                    <button
+                                        type="submit"
+                                        class="btn-gold w-full"
+                                    >
+                                        <i
+                                            data-lucide="clipboard-check"
+                                            class="w-4 h-4"
+                                        ></i>
+                                        Vérifier le stock
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div id="exitResults" class="mt-6 space-y-3">
+                                <p class="text-sm text-zinc-500">
+                                    Les résultats de contrôle apparaîtront ici
+                                    après la vérification.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Notifications -->
+                    <div
+                        id="toast"
+                        class="hidden fixed bottom-5 right-5 z-[100] max-w-sm rounded-xl border border-zinc-700 bg-zinc-900 px-5 py-4 shadow-2xl text-sm"
+                        role="status"
+                        aria-live="polite"
+                    ></div>
+
+                    <!-- Footer -->
+                    <footer
+                        class="mt-10 pt-6 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-600"
+                    >
+                        <p>
+                            Champagne Manager &copy;
+                            <span id="currentYear"></span>
+                        </p>
+                        <p>
+                            Version de démonstration — HTML, Tailwind CSS &
+                            JavaScript
+                        </p>
+                    </footer>
+                </main>
+            </div>
+        </div>
+
+        <!-- Le JavaScript applicatif sera ajouté ici -->
+        <script>
+            // Les fonctionnalités seront développées dans la prochaine étape.
+        </script>
+    </body>
+</html>
